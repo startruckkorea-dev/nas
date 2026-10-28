@@ -2,57 +2,11 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <title>이동 중…</title>
-<style>
-/* SharePoint 보안 프록시(*.mcas.ms)가 붙으면 SSO 가 깨지는 사이트를 원래 주소로 여는 중간 화면.
-   이동할 곳은 ../go.json 에 등록된 키만 허용(아무 주소로나 보내지 않음). */
-:root{--bg0:#060b1a;--bg1:#0b1633;--txt:#f1f5fb;--sub:#a9b6cf;--line:rgba(148,163,184,.16);--accent:#f5b83d}
-*{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;display:grid;place-items:center;font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
-  background:radial-gradient(900px 600px at 15% -10%,rgba(37,99,235,.28),transparent 60%),linear-gradient(180deg,var(--bg1),var(--bg0));padding:16px}
-.card{width:min(380px,100%);text-align:center;padding:30px 26px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
-h1{font-size:17px;font-weight:650;margin-bottom:8px}
-p{font-size:13px;color:var(--sub);line-height:1.6}
-.dots{display:inline-flex;gap:5px;margin:4px 0 16px}
-.dots i{width:7px;height:7px;border-radius:50%;background:#60a5fa;animation:b 1s infinite ease-in-out}
-.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
-@keyframes b{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:none}}
-a{color:var(--accent);text-underline-offset:2px}
-.hide{display:none}
-@media (prefers-reduced-motion:reduce){.dots i{animation:none}}
-</style>
+<style>body{margin:0;min-height:100vh;background:#0b1633}</style>
+<script>/* 예전 주소(/nas/go/?to=키) 호환 — 같은 키로 /nas/?to=키 로 넘긴다 */ location.replace('../' + location.search);</script>
 </head>
-<body>
-<div class="card">
-  <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i></div>
-  <h1 id="t">이동 중…</h1>
-  <p id="m">잠시만 기다려 주세요.</p>
-  <p id="f" class="hide" style="margin-top:12px">자동으로 열리지 않으면 <a id="l" href="#" rel="noreferrer">여기를 눌러 주세요</a>.</p>
-</div>
-<script>
-(function () {
-  'use strict';
-  function $(id) { return document.getElementById(id); }
-  function fail(msg) { $('dots').className = 'hide'; $('t').textContent = '열 수 없는 주소입니다'; $('m').textContent = msg; document.title = '열 수 없는 주소'; }
-  var key = (new URLSearchParams(location.search).get('to') || '').trim().toLowerCase();
-  if (!/^[a-z0-9-]{1,40}$/.test(key)) { fail('바로가기 키가 없습니다.'); return; }
-  fetch('../go.json?v=' + Math.floor(Date.now() / 60000), { cache: 'no-store' })
-    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function (map) {
-      var e = Object.prototype.hasOwnProperty.call(map, key) ? map[key] : null;
-      var url = e && String(e.url || '');
-      if (!url || !/^https:\/\/[^\s"'<>]+$/i.test(url)) { fail('등록되지 않은 바로가기입니다: ' + key); return; }
-      var name = String(e.name || key);
-      document.title = name + '(으)로 이동 중…';
-      $('t').textContent = name + '(으)로 이동 중…';
-      $('l').href = url; $('f').className = '';
-      location.replace(url);
-    })
-    .catch(function () { fail('바로가기 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'); });
-})();
-</script>
-</body>
+<body></body>
 </html>
