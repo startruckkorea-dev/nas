@@ -1,12 +1,22 @@
 # STK 바로가기(리디렉션)
 
 SharePoint 를 보안 프록시(`*.mcas.ms`)로 열면 페이지 안 링크에도 `.mcas.ms` 가 붙어 일부 사이트의 SSO 로그인이 실패합니다.
-SharePoint 바로가기에 `https://redirect.startruckkorea.com/?to=키` 를 넣으면 이 사이트를 한 번 거쳐 원래 주소로 열립니다.
+SharePoint 바로가기에 `https://redirect.startruckkorea.com/?to=키` 를 넣으면 이 사이트를 한 번 거쳐 원래 주소로 열립니다(로그인 없음).
 
-- **이동할 주소는 이 저장소에 두지 않습니다.** SharePoint STK-DB 「문서」 라이브러리 맨 위의 엑셀 파일에서만 읽습니다.
-  - 첫 시트 · 1행 머리글 · A 키 · B 이름 · C 설명 · D 주소(https) · E 사용(Y/N, 비우면 Y) · F 색상(#RRGGBB, 선택)
-  - 키는 영문 소문자 · 숫자 · `-` 만. 같은 키가 두 번 있으면 위의 것을 씁니다.
-  - 주소에 `.mcas.ms` 가 붙어 있으면 떼고 원래 주소로 엽니다. https 가 아니면 쓰지 않습니다.
-- 파일을 읽으려면 회사 계정 로그인이 필요합니다(APS 와 같은 앱 등록). 앱 등록의 「단일 페이지 애플리케이션」 리디렉션 URI 에
-  `https://redirect.startruckkorea.com/` 이 있어야 합니다.
+- 목록은 `links.dat` 하나 — UTF-8 JSON 을 base64 로 바꾼 것입니다. 저장소에서 주소가 평문으로 보이지 않게 하는 정도이며 **보안 장치는 아닙니다**(누구나 되돌릴 수 있음).
+- JSON 형식: `[{ "key": "키", "name": "이름", "desc": "설명", "url": "https://...", "color": "#RRGGBB" }]`
+  - key 는 영문 소문자 · 숫자 · `-` 만. url 은 https 만(`.mcas.ms` 가 붙어 있으면 떼고 이동). `"use": false` 면 숨김.
 - 키 없이 열면 등록된 바로가기 목록이 나옵니다. 예전 주소 `/go/?to=키` 도 그대로 동작합니다.
+
+## links.dat 고치기(PowerShell)
+
+```powershell
+# 1) 풀기 → links.json 으로 저장해 메모장 등으로 고침
+$b = (Get-Content .\links.dat -Raw) -replace '\s',''
+[IO.File]::WriteAllText("$PWD\links.json", [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($b)))
+
+# 2) 다시 묶기 → links.dat 덮어쓰기(links.json 은 올리지 말고 지움)
+$j = [IO.File]::ReadAllText("$PWD\links.json"); $null = $j | ConvertFrom-Json   # 형식 확인
+[IO.File]::WriteAllText("$PWD\links.dat", [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($j)))
+Remove-Item .\links.json
+```

@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 /* STK 바로가기 — SharePoint 보안 프록시(*.mcas.ms)를 거치면 SSO 가 깨지는 사이트를 원래 주소로 여는 중간 화면.
-   이동할 곳은 SharePoint 엑셀(바로가기 목록)에 등록된 키 · https 주소만(아무 주소로나 보내지 않음). 키 없이 열면 등록된 목록. */
+   이동할 곳은 links.dat 에 등록된 키 · https 주소만(아무 주소로나 보내지 않음). 키 없이 열면 등록된 목록. */
 :root{
   --bg:#f5f7fb; --bg-2:#eef2f9; --card:#ffffff; --line:#e3e8f1; --line-2:#d5dceb;
   --txt:#0f172a; --sub:#5b6880; --muted:#8a96ab;
@@ -107,14 +107,20 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;b
 
 .sk{height:72px;border-radius:16px;background:linear-gradient(90deg,var(--bg-2),var(--line),var(--bg-2));background-size:200% 100%;animation:sh 1.2s linear infinite}
 @keyframes sh{to{background-position:-200% 0}}
-footer{text-align:center;font-size:12px;color:var(--muted);padding:0 16px 24px}
-footer a{color:var(--sub);text-underline-offset:2px}
+footer{padding:16px clamp(16px,4vw,40px) 20px;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);background:color-mix(in srgb,var(--bg) 60%,transparent);backdrop-filter:blur(6px)}
+.foot{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:6px 24px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);line-height:1.6}
+.foot b{font-weight:650;color:var(--sub)}
+.foot .legal{display:flex;align-items:center;gap:6px;text-align:right}
+.foot .legal svg{width:12px;height:12px;flex:none;opacity:.8}
 @media (max-width:520px){
   header{padding:16px}
   .logo .sv,.sep{display:none}
   .card{padding:26px 20px 22px;border-radius:20px}
   .row{flex-direction:column;align-items:stretch}
   .row .btn{width:100%}
+  .foot{flex-direction:column;align-items:flex-start}
+  .foot .legal{text-align:left;align-items:flex-start}
+  .foot .legal svg{margin-top:3px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
 </style>
@@ -133,41 +139,35 @@ footer a{color:var(--sub);text-underline-offset:2px}
   <section class="card"><div class="sk"></div></section>
 </main>
 
-<footer>Star Truck Korea · IT</footer>
+<footer>
+  <div class="foot">
+    <div>© <span id="yr">2026</span> Star Truck Korea &nbsp;·&nbsp; <b>STK Shortcuts</b> — Secure Redirect</div>
+    <div class="legal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5.5c0 4.4 3 8 7 9.5 4-1.5 7-5.1 7-9.5V6l-7-3Z"/></svg><span>This system is internally developed by Star Truck Korea IT Dept. Unauthorized access is strictly prohibited.</span></div>
+  </div>
+</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.28.0/lib/msal-browser.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-/* 10-28 바로가기 목록은 SharePoint STK-DB 문서 라이브러리의 엑셀 파일 하나에서만 읽는다(코드 · 저장소에 이동 주소 없음).
-   첫 시트 · 1행 머리글 · A 키 · B 이름 · C 설명 · D 주소(https) · E 사용(Y/N, 비우면 Y) · F 색상(#RRGGBB, 선택).
-   파일을 읽으려면 회사 계정 로그인이 필요하다(APS 와 같은 앱 등록 · 같은 방식). 화면에는 파일 이름 · 저장 위치를 보이지 않는다. */
+/* 10-28 로그인 없이 동작. 바로가기 목록은 같은 폴더의 links.dat(UTF-8 JSON 을 base64 로 바꾼 것) 하나에서만 읽는다.
+   base64 는 저장소 검색 · 훑어보기에 주소가 평문으로 보이지 않게 하는 정도이고 보안 장치는 아니다(누구나 되돌릴 수 있음).
+   목록 형식: [{ "key": "concur", "name": "Concur", "desc": "설명", "url": "https://...", "color": "#RRGGBB" }, ...]  — 고치는 법은 README. */
 (function () {
   'use strict';
-  var CLIENT_ID = '432976c2-b43a-492e-8213-ece505fa1f51';
-  var TENANT_ID = '19cab1f5-21f4-44df-8ac6-96d6ca595203';
-  var SITE_PATH = 'startruckkorea.sharepoint.com:/sites/STK-DB:';
-  var LINK_FILE = 'Redirect_Links.xlsx';
-  var GRAPH = 'https://graph.microsoft.com/v1.0';
-  var SCOPES = ['User.Read', 'Sites.ReadWrite.All', 'Files.ReadWrite.All'];   // APS 앱과 같은 범위(추가 동의 창이 뜨지 않게)
+  var DATA_FILE = 'links.dat';
   var REDIRECT_DELAY = 450;
-  var LS_SITE = 'stk_redirect_site', SS_KEY = 'stk_redirect_to', SS_TRY = 'stk_redirect_login_at';
   var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>';
   var LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
   var INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.8v.1"/></svg>';
   var WARN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.8 19.5h18.4L12 3.5Z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>';
-  var USER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></svg>';
   var PALETTE = ['#1d4ed8', '#4f46e5', '#0f766e', '#0369a1', '#7c3aed', '#b45309', '#be123c', '#15803d'];
   var main = document.getElementById('main');
+  try { document.getElementById('yr').textContent = String(new Date().getFullYear()); } catch (e) {}
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function host(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
-  function ss(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch (e) { return null; } }
-  function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
   function color(e, k) { if (e && /^#[0-9a-f]{6}$/i.test(e.color || '')) return e.color; var h = 0; for (var i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) >>> 0; return PALETTE[h % PALETTE.length]; }
   function mono(e, k) { var c = color(e, k); var t = String(e.name || k).trim().charAt(0).toUpperCase();
     return '<span class="mono" style="--mc:' + c + ';background:linear-gradient(145deg,' + c + ',' + c + 'cc)">' + esc(t) + '</span>'; }
-
   // 주소 정리 — https 만, 회사 보안 프록시 접미사(*.mcas.ms 등)가 붙어 있으면 떼고 원래 주소로
   function cleanUrl(raw) {
     var s = String(raw == null ? '' : raw).trim(); if (!s) return '';
@@ -176,25 +176,29 @@ footer a{color:var(--sub);text-underline-offset:2px}
     u.hostname = u.hostname.replace(/\.(access\.)?mcas(-gov)?\.(ms|us)$/i, '');
     return u.href;
   }
-  // 엑셀 행 → { 키: {name, desc, url, color} }
-  function parseRows(rows) {
+  function decode(b64) {
+    var bin = atob(String(b64).replace(/\s+/g, '')), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return JSON.parse(new TextDecoder('utf-8').decode(bytes));
+  }
+  function build(arr) {
     var map = {}, order = [];
-    (rows || []).forEach(function (r) {
-      if (!r) return;
-      var k = String(r[0] == null ? '' : r[0]).trim().toLowerCase();
-      if (!/^[a-z0-9-]{1,40}$/.test(k) || map[k]) return;                      // 머리글 · 빈 줄 · 중복 키는 건너뜀(먼저 나온 것)
-      if (String(r[4] == null ? '' : r[4]).trim().toUpperCase() === 'N') return;   // 사용 N
-      var url = cleanUrl(r[3]); if (!url) return;
-      map[k] = { name: String(r[1] == null ? '' : r[1]).trim() || k, desc: String(r[2] == null ? '' : r[2]).trim(), url: url, color: String(r[5] == null ? '' : r[5]).trim() };
+    (Array.isArray(arr) ? arr : []).forEach(function (x) {
+      if (!x) return;
+      var k = String(x.key || '').trim().toLowerCase();
+      if (!/^[a-z0-9-]{1,40}$/.test(k) || map[k] || x.use === false) return;
+      var url = cleanUrl(x.url); if (!url) return;
+      map[k] = { name: String(x.name || '').trim() || k, desc: String(x.desc || '').trim(), url: url, color: String(x.color || '').trim() };
       order.push(k);
     });
     return { map: map, order: order };
   }
-
-  function showChecking(msg) {
-    main.innerHTML = '<section class="card"><div class="eyebrow">STK Shortcuts</div><h1>' + esc(msg || '바로가기를 확인하고 있어요') + '</h1>' +
-      '<p class="lead">잠시만 기다려 주세요.</p><div class="bar" style="margin-top:22px" aria-hidden="true"><i></i></div></section>';
+  function load() {
+    return fetch(DATA_FILE + '?v=' + Math.floor(Date.now() / 60000), { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(function (t) { return build(decode(t)); });
   }
+
   function showGo(k, e) {
     var url = e.url, name = e.name || k;
     document.title = name + '(으)로 이동 중 · STK 바로가기';
@@ -238,90 +242,19 @@ footer a{color:var(--sub);text-underline-offset:2px}
       '</section>';
     var b = document.getElementById('again'); if (b) b.onclick = function () { location.reload(); };
   }
-  function showLogin(app, key, msg) {
-    document.title = '로그인 · STK 바로가기';
-    main.innerHTML =
-      '<section class="card">' +
-        '<div class="ico" style="background:var(--brand-soft);color:var(--brand)">' + USER + '</div>' +
-        '<h1>회사 계정 확인이 필요해요</h1>' +
-        '<p class="lead">' + esc(msg || '바로가기 목록은 회사 계정으로 로그인한 직원만 볼 수 있습니다.') + '</p>' +
-        '<div class="acts"><button type="button" class="btn pri" id="login">Hyosung M365 계정으로 로그인 ' + ARROW + '</button></div>' +
-      '</section>';
-    document.getElementById('login').onclick = function () { login(app, key, true); };
-  }
-  function login(app, key, manual) {
-    if (key) ss(SS_KEY, key);
-    var last = +ss(SS_TRY) || 0;
-    if (!manual && Date.now() - last < 60000) { showLogin(app, key); return; }   // 자동 로그인은 1분에 한 번만(되풀이 방지)
-    ss(SS_TRY, String(Date.now()));
-    showChecking('로그인 화면으로 이동하고 있어요');
-    app.loginRedirect({ scopes: SCOPES, state: key || '' }).catch(function () { showLogin(app, key, '로그인 화면을 열지 못했습니다. 다시 눌러 주세요.'); });
-  }
-  function gj(path, t) {
-    return fetch(GRAPH + path, { headers: { Authorization: 'Bearer ' + t } }).then(function (r) { if (!r.ok) { var e = new Error('HTTP ' + r.status); e.status = r.status; throw e; } return r.json(); });
-  }
-  function loadLinks(t, again) {
-    var site = ls(LS_SITE);
-    var siteP = site ? Promise.resolve(site) : gj('/sites/' + SITE_PATH + '?$select=id', t).then(function (s) { ls(LS_SITE, s.id); return s.id; });
-    return siteP.then(function (id) {
-      return fetch(GRAPH + '/sites/' + id + '/drive/root:/' + encodeURIComponent(LINK_FILE) + ':/content', { headers: { Authorization: 'Bearer ' + t } });
-    }).then(function (r) {
-      if (!r.ok) {
-        if (site && !again && (r.status === 400 || r.status === 404)) { ls(LS_SITE, null); return loadLinks(t, true); }   // 저장해 둔 사이트 정보가 낡았으면 한 번 새로
-        var e = new Error('HTTP ' + r.status); e.status = r.status; throw e;
-      }
-      return r.arrayBuffer().then(function (buf) {
-        var wb = XLSX.read(buf, { type: 'array' });
-        return parseRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '', raw: false }));
-      });
-    });
-  }
 
-  function start() {
-    var raw = new URLSearchParams(location.search).get('to');
-    var key = (raw || '').trim().toLowerCase();
-    if (raw !== null && key !== '' && !/^[a-z0-9-]{1,40}$/.test(key)) { showError('주소 형식이 올바르지 않아요', '바로가기 키는 영문 소문자 · 숫자 · - 만 쓸 수 있습니다.'); return; }
-    showChecking();
-    if (!window.msal || !window.XLSX) { showError('화면을 준비하지 못했어요', '네트워크 상태를 확인한 뒤 다시 시도해 주세요.', true); return; }
-    var app;
-    msal.PublicClientApplication.createPublicClientApplication({
-      auth: { clientId: CLIENT_ID, authority: 'https://login.microsoftonline.com/' + TENANT_ID, redirectUri: location.origin + location.pathname },
-      cache: { cacheLocation: 'localStorage' }
-    }).then(function (a) { app = a; return app.handleRedirectPromise(); })
-      .then(function (resp) {
-        if (!key && resp && resp.state && /^[a-z0-9-]{1,40}$/.test(resp.state)) key = resp.state;
-        if (!key && resp) key = ss(SS_KEY) || '';
-        ss(SS_KEY, null);
-        var acct = (resp && resp.account) || app.getActiveAccount() || app.getAllAccounts()[0];
-        if (!acct) { login(app, key, false); return; }
-        app.setActiveAccount(acct);
-        if (resp) ss(SS_TRY, null);
-        return app.acquireTokenSilent({ scopes: SCOPES, account: acct }).then(function (r) { return r.accessToken; }, function (e) {
-          var n = (e && (e.errorCode || e.name)) || '';
-          if (/interaction_required|login_required|consent_required|InteractionRequired|no_tokens_found|monitor_window_timeout/i.test(n)) { login(app, key, false); return null; }
-          throw e;
-        }).then(function (t) {
-          if (!t) return;
-          return loadLinks(t).then(function (L) {
-            if (!key) { showList(L); return; }
-            var e = Object.prototype.hasOwnProperty.call(L.map, key) ? L.map[key] : null;
-            if (!e) { showError('등록되지 않은 바로가기예요', '「' + key + '」 은(는) 목록에 없습니다. 주소를 다시 확인해 주세요.'); return; }
-            showGo(key, e);
-          }, function (e) {
-            console.warn('[STK 바로가기] 목록 읽기 실패:', e && e.message);
-            if (e && (e.status === 401 || e.status === 403)) showError('목록을 볼 권한이 없어요', '회사 계정으로 다시 로그인하거나 IT팀에 알려 주세요.', true);
-            else if (e && e.status === 404) showError('바로가기 목록이 아직 준비되지 않았어요', 'IT팀에 알려 주세요.', true);
-            else showError('목록을 불러오지 못했어요', '잠시 후 다시 시도해 주세요. 계속되면 IT팀에 알려 주세요.', true);
-          });
-        });
-      })
-      .catch(function (e) {
-        console.warn('[STK 바로가기] 로그인 처리 실패:', e && (e.errorCode || e.message));
-        if (app) showLogin(app, key, '로그인을 마치지 못했습니다. 다시 로그인해 주세요.');
-        else showError('로그인을 준비하지 못했어요', '잠시 후 다시 시도해 주세요.', true);
-      });
-  }
-  start();
+  var raw = new URLSearchParams(location.search).get('to');
+  var key = (raw || '').trim().toLowerCase();
+  if (raw !== null && key !== '' && !/^[a-z0-9-]{1,40}$/.test(key)) { showError('주소 형식이 올바르지 않아요', '바로가기 키는 영문 소문자 · 숫자 · - 만 쓸 수 있습니다.'); return; }
+  load().then(function (L) {
+    if (!key) { showList(L); return; }
+    var e = Object.prototype.hasOwnProperty.call(L.map, key) ? L.map[key] : null;
+    if (!e) { showError('등록되지 않은 바로가기예요', '「' + key + '」 은(는) 목록에 없습니다. 주소를 다시 확인해 주세요.'); return; }
+    showGo(key, e);
+  }).catch(function (e) {
+    console.warn('[STK 바로가기] 목록 읽기 실패:', e && e.message);
+    showError('목록을 불러오지 못했어요', '잠시 후 다시 시도해 주세요. 계속되면 IT팀에 알려 주세요.', true);
+  });
 })();
 </script>
 </body>
