@@ -5,72 +5,218 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
 <title>STK 바로가기</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231d4ed8'/%3E%3Cpath d='M10 16h11m-4-5 5 5-5 5' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-/* SharePoint 보안 프록시(*.mcas.ms)가 붙으면 SSO 가 깨지는 사이트를 원래 주소로 여는 중간 화면.
-   이동할 곳은 go.json 에 등록된 키만 허용(아무 주소로나 보내지 않음). 키 없이 열면 등록된 바로가기 목록을 보여 준다. */
-:root{--bg0:#060b1a;--bg1:#0b1633;--txt:#f1f5fb;--sub:#a9b6cf;--line:rgba(148,163,184,.16);--accent:#f5b83d}
+/* STK 바로가기 — SharePoint 보안 프록시(*.mcas.ms)를 거치면 SSO 가 깨지는 사이트를 원래 주소로 여는 중간 화면.
+   이동할 곳은 go.json 에 등록된 키 · https 주소만(아무 주소로나 보내지 않음). 키 없이 열면 등록된 목록. */
+:root{
+  --bg:#f5f7fb; --bg-2:#eef2f9; --card:#ffffff; --line:#e3e8f1; --line-2:#d5dceb;
+  --txt:#0f172a; --sub:#5b6880; --muted:#8a96ab;
+  --brand:#1d4ed8; --brand-2:#4f46e5; --brand-soft:#eef3ff; --ok:#0f9d6b; --warn:#c2410c; --warn-soft:#fff4ed;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 12px 32px -12px rgba(15,23,42,.14);
+  --shadow-h:0 2px 4px rgba(15,23,42,.05),0 18px 40px -14px rgba(29,78,216,.28);
+  --on-brand:#ffffff;
+  --blob1:rgba(59,130,246,.16); --blob2:rgba(99,102,241,.12); --blob3:rgba(14,165,233,.10); --dot:rgba(15,23,42,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0a0f1c; --bg-2:#0d1426; --card:#111a2e; --line:#1f2a42; --line-2:#2a3756;
+    --txt:#eef2fa; --sub:#a3b0c7; --muted:#6f7d97;
+    --brand:#6b9bff; --brand-2:#8b84ff; --brand-soft:rgba(107,155,255,.12); --ok:#34d399; --warn:#fb923c; --warn-soft:rgba(251,146,60,.1);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 16px 40px -16px rgba(0,0,0,.6);
+    --shadow-h:0 2px 4px rgba(0,0,0,.3),0 20px 44px -16px rgba(59,130,246,.35);
+    --on-brand:#0a0f1c;
+    --blob1:rgba(37,99,235,.22); --blob2:rgba(79,70,229,.16); --blob3:rgba(14,165,233,.10); --dot:rgba(255,255,255,.05);
+  }
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;display:grid;place-items:center;font-family:'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
-  background:radial-gradient(900px 600px at 15% -10%,rgba(37,99,235,.28),transparent 60%),linear-gradient(180deg,var(--bg1),var(--bg0));padding:16px}
-.card{width:min(380px,100%);text-align:center;padding:30px 26px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
-h1{font-size:17px;font-weight:650;margin-bottom:8px}
-p{font-size:13px;color:var(--sub);line-height:1.6}
-.dots{display:inline-flex;gap:5px;margin:4px 0 16px}
-.dots i{width:7px;height:7px;border-radius:50%;background:#60a5fa;animation:b 1s infinite ease-in-out}
-.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
-@keyframes b{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:none}}
-a{color:var(--accent);text-underline-offset:2px}
-.hide{display:none}
-.list{display:grid;gap:8px;margin-top:14px}
-.btn{display:block;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);text-decoration:none;font-size:14px;font-weight:600}
-.btn:hover{border-color:rgba(96,165,250,.55);background:rgba(255,255,255,.09)}
-@media (prefers-reduced-motion:reduce){.dots i{animation:none}}
+html,body{min-height:100%}
+body{font-family:'Pretendard Variable',Pretendard,'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);background:var(--bg);
+  -webkit-font-smoothing:antialiased;letter-spacing:-.01em;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+.bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bgfx::before{content:"";position:absolute;inset:0;background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:22px 22px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000 30%,transparent 80%);mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000 30%,transparent 80%)}
+.blob{position:absolute;border-radius:50%;filter:blur(60px)}
+.b1{width:560px;height:560px;left:-140px;top:-180px;background:var(--blob1);animation:drift 18s ease-in-out infinite alternate}
+.b2{width:520px;height:520px;right:-160px;top:10%;background:var(--blob2);animation:drift 22s ease-in-out infinite alternate-reverse}
+.b3{width:620px;height:420px;left:20%;bottom:-220px;background:var(--blob3);animation:drift 26s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate(40px,30px) scale(1.06)}}
+
+header,main,footer{position:relative;z-index:1}
+header{display:flex;align-items:center;justify-content:space-between;padding:22px clamp(16px,4vw,40px)}
+.logo{display:flex;align-items:center;gap:12px;color:var(--txt);text-decoration:none}
+.wm{font-weight:800;font-size:11px;line-height:1.02;letter-spacing:.06em;text-transform:uppercase}
+.sep{width:1px;height:26px;background:var(--line-2)}
+.logo .sv{font-size:13.5px;font-weight:600;color:var(--sub)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 70%,transparent);backdrop-filter:blur(8px)}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 20%,transparent)}
+
+main{flex:1;display:grid;place-items:center;padding:12px 16px 40px}
+.card{width:min(460px,100%);background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:34px 30px 28px;animation:pop .5s cubic-bezier(.2,.8,.2,1) both}
+.card.wide{width:min(720px,100%)}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+h1{font-size:clamp(22px,3.2vw,26px);font-weight:750;letter-spacing:-.025em;line-height:1.25;margin-top:8px}
+.lead{font-size:14px;color:var(--sub);line-height:1.65;margin-top:8px}
+
+/* 이동 중 */
+.dest{display:flex;align-items:center;gap:14px;margin:24px 0 18px;padding:14px;border-radius:16px;background:var(--bg-2);border:1px solid var(--line)}
+.mono{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;flex:none;color:#fff;font-weight:800;font-size:20px;letter-spacing:-.03em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 6px 16px -6px var(--mc,#1d4ed8)}
+.dest .nm{font-size:16px;font-weight:700}
+.dest .hs{font-size:12.5px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px;word-break:break-all}
+.dest .hs svg{width:12px;height:12px;flex:none;color:var(--ok)}
+.bar{height:4px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:40%;border-radius:inherit;background:linear-gradient(90deg,var(--brand),var(--brand-2));animation:slide 1.1s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+.row small{font-size:12.5px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:40px;padding:0 16px;border-radius:12px;font:inherit;font-size:13.5px;font-weight:650;
+  text-decoration:none;cursor:pointer;border:1px solid var(--line-2);background:var(--card);color:var(--txt);transition:border-color .15s,background .15s,transform .15s}
+.btn:hover{border-color:var(--brand)}
+.btn:active{transform:translateY(1px)}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.btn.pri:hover{filter:brightness(1.07)}
+.btn svg{width:15px;height:15px}
+
+/* 목록 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:24px}
+.tile{position:relative;display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:inherit;text-decoration:none;
+  transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s,border-color .2s;animation:pop .5s cubic-bezier(.2,.8,.2,1) both}
+.tile:hover,.tile:focus-visible{transform:translateY(-3px);box-shadow:var(--shadow-h);border-color:color-mix(in srgb,var(--brand) 45%,var(--line));outline:none}
+.tile .mono{width:42px;height:42px;font-size:17px;border-radius:12px}
+.tile .tx{min-width:0;flex:1}
+.tile .nm{font-size:14.5px;font-weight:700}
+.tile .ds{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .go{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:var(--muted);background:var(--bg-2);transition:background .2s,color .2s;flex:none}
+.tile:hover .go{background:var(--brand);color:var(--on-brand)}
+.tile .go svg{width:14px;height:14px}
+.note{display:flex;gap:10px;align-items:flex-start;margin-top:22px;padding:12px 14px;border-radius:14px;background:var(--brand-soft);font-size:12.5px;line-height:1.6;color:var(--sub)}
+.note svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--brand)}
+.note b{color:var(--txt);font-weight:650}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;background:var(--card);border:1px solid var(--line);padding:1px 6px;border-radius:6px;color:var(--txt);word-break:break-all}
+
+/* 오류 */
+.ico{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--warn-soft);color:var(--warn);margin-bottom:16px}
+.ico svg{width:24px;height:24px}
+.acts{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap}
+
+.sk{height:72px;border-radius:16px;background:linear-gradient(90deg,var(--bg-2),var(--line),var(--bg-2));background-size:200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+footer{text-align:center;font-size:12px;color:var(--muted);padding:0 16px 24px}
+footer a{color:var(--sub);text-underline-offset:2px}
+@media (max-width:520px){
+  header{padding:16px}
+  .logo .sv,.sep{display:none}
+  .card{padding:26px 20px 22px;border-radius:20px}
+  .row{flex-direction:column;align-items:stretch}
+  .row .btn{width:100%}
+}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i></div>
-  <h1 id="t">이동 중…</h1>
-  <p id="m">잠시만 기다려 주세요.</p>
-  <div id="list" class="list"></div>
-  <p id="f" class="hide" style="margin-top:12px">자동으로 열리지 않으면 <a id="l" href="#" rel="noreferrer">여기를 눌러 주세요</a>.</p>
-</div>
+<div class="bgfx" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<header>
+  <a class="logo" href="./" aria-label="STK 바로가기 처음으로">
+    <span class="wm">Star<br>Truck<br>Korea</span><span class="sep"></span><span class="sv">바로가기</span>
+  </a>
+  <span class="pill" title="원래 주소로 바로 연결합니다"><i></i>Secure redirect</span>
+</header>
+
+<main id="main" aria-live="polite">
+  <section class="card"><div class="sk"></div></section>
+</main>
+
+<footer>Star Truck Korea · IT &nbsp;·&nbsp; 문의 <a href="mailto:stk_it@hyosung.com">stk_it@hyosung.com</a></footer>
+
 <script>
 (function () {
   'use strict';
-  function $(id) { return document.getElementById(id); }
-  function entries(map) { return Object.keys(map).filter(function (k) { return k.charAt(0) !== '_' && map[k] && /^https:\/\//i.test(String(map[k].url || '')); }); }
-  function showList() {
-    $('dots').className = 'hide'; $('t').textContent = 'STK 바로가기'; document.title = 'STK 바로가기';
-    $('m').textContent = '불러오는 중…';
-    fetch('go.json?v=' + Math.floor(Date.now() / 60000), { cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function (map) {
-        var ks = entries(map); $('m').textContent = ks.length ? '열 곳을 고르세요.' : '등록된 바로가기가 없습니다.';
-        var ul = $('list'); ul.innerHTML = '';
-        ks.forEach(function (k) { var a = document.createElement('a'); a.href = '?to=' + encodeURIComponent(k); a.textContent = String(map[k].name || k); a.className = 'btn'; ul.appendChild(a); });
-      })
-      .catch(function () { $('m').textContent = '바로가기 목록을 불러오지 못했습니다.'; });
+  var REDIRECT_DELAY = 650;   // 화면이 한 번 보이고 넘어가도록(움직임 줄이기 설정이면 바로 이동)
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>';
+  var LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  var INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.8v.1"/></svg>';
+  var WARN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.8 19.5h18.4L12 3.5Z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>';
+  var PALETTE = ['#1d4ed8', '#4f46e5', '#0f766e', '#0369a1', '#7c3aed', '#b45309', '#be123c', '#15803d'];
+  var main = document.getElementById('main');
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function host(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
+  function color(e, k) { if (e && /^#[0-9a-f]{6}$/i.test(e.color || '')) return e.color; var h = 0; for (var i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) >>> 0; return PALETTE[h % PALETTE.length]; }
+  function mono(e, k) { var c = color(e, k); var t = String(e.mono || e.name || k).trim().charAt(0).toUpperCase();
+    return '<span class="mono" style="--mc:' + c + ';background:linear-gradient(145deg,' + c + ',' + c + 'cc)">' + esc(t) + '</span>'; }
+  function valid(e) { return e && /^https:\/\/[^\s"'<>]+$/i.test(String(e.url || '')); }
+  function entries(map) { return Object.keys(map).filter(function (k) { return k.charAt(0) !== '_' && /^[a-z0-9-]{1,40}$/.test(k) && valid(map[k]); }); }
+  function load() {
+    return fetch('go.json?v=' + Math.floor(Date.now() / 60000), { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
   }
-  function fail(msg) { $('dots').className = 'hide'; $('t').textContent = '열 수 없는 주소입니다'; $('m').textContent = msg; document.title = '열 수 없는 주소'; }
+
+  function showGo(k, e) {
+    var url = String(e.url), name = String(e.name || k);
+    document.title = name + '(으)로 이동 중 · STK 바로가기';
+    main.innerHTML =
+      '<section class="card">' +
+        '<div class="eyebrow">Redirecting</div>' +
+        '<h1>' + esc(name) + '(으)로 이동하고 있어요</h1>' +
+        '<p class="lead">로그인이 원활하도록 원래 주소로 바로 연결합니다.</p>' +
+        '<div class="dest">' + mono(e, k) + '<div style="min-width:0"><div class="nm">' + esc(name) + '</div><div class="hs">' + LOCK + esc(host(url)) + '</div></div></div>' +
+        '<div class="bar" aria-hidden="true"><i></i></div>' +
+        '<div class="row"><small>자동으로 열리지 않으면 버튼을 눌러 주세요.</small><a class="btn pri" href="' + esc(url) + '" rel="noreferrer">바로 열기 ' + ARROW + '</a></div>' +
+      '</section>';
+    setTimeout(function () { location.replace(url); }, still ? 0 : REDIRECT_DELAY);
+  }
+
+  function showList(map) {
+    var ks = entries(map);
+    document.title = 'STK 바로가기';
+    var tiles = ks.map(function (k, i) {
+      var e = map[k];
+      return '<a class="tile" href="?to=' + encodeURIComponent(k) + '" style="animation-delay:' + (80 + i * 40) + 'ms">' + mono(e, k) +
+        '<span class="tx"><span class="nm">' + esc(e.name || k) + '</span><span class="ds" style="display:block">' + esc(e.desc || host(e.url)) + '</span></span>' +
+        '<span class="go">' + ARROW + '</span></a>';
+    }).join('');
+    main.innerHTML =
+      '<section class="card wide">' +
+        '<div class="eyebrow">STK Shortcuts</div>' +
+        '<h1>STK 바로가기</h1>' +
+        '<p class="lead">SharePoint에서 바로 열리지 않는 사이트를 원래 주소로 연결합니다.</p>' +
+        (ks.length ? '<div class="grid">' + tiles + '</div>' : '<p class="lead" style="margin-top:20px">등록된 바로가기가 없습니다.</p>') +
+        '<div class="note">' + INFO + '<div>SharePoint 바로가기에는 <code>' + esc(location.origin + location.pathname) + '?to=키</code> 형태로 넣으세요.' +
+          (ks.length ? ' 예: <b>' + esc(ks[0]) + '</b>' : '') + '</div></div>' +
+      '</section>';
+  }
+
+  function showError(title, msg) {
+    document.title = '열 수 없는 주소 · STK 바로가기';
+    main.innerHTML =
+      '<section class="card">' +
+        '<div class="ico">' + WARN + '</div>' +
+        '<h1>' + esc(title) + '</h1>' +
+        '<p class="lead">' + esc(msg) + '</p>' +
+        '<div class="acts"><a class="btn pri" href="./">바로가기 목록 보기</a><a class="btn" href="mailto:stk_it@hyosung.com">IT팀에 문의</a></div>' +
+      '</section>';
+  }
+
   var raw = new URLSearchParams(location.search).get('to');
   var key = (raw || '').trim().toLowerCase();
-  if (raw === null || key === '') { showList(); return; }
-  if (!/^[a-z0-9-]{1,40}$/.test(key)) { fail('바로가기 키 형식이 올바르지 않습니다.'); return; }
-  fetch('go.json?v=' + Math.floor(Date.now() / 60000), { cache: 'no-store' })
-    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function (map) {
-      var e = Object.prototype.hasOwnProperty.call(map, key) ? map[key] : null;
-      var url = e && String(e.url || '');
-      if (!url || !/^https:\/\/[^\s"'<>]+$/i.test(url)) { fail('등록되지 않은 바로가기입니다: ' + key); return; }
-      var name = String(e.name || key);
-      document.title = name + '(으)로 이동 중…';
-      $('t').textContent = name + '(으)로 이동 중…';
-      $('l').href = url; $('f').className = '';
-      location.replace(url);
-    })
-    .catch(function () { fail('바로가기 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'); });
+  if (raw !== null && key !== '' && !/^[a-z0-9-]{1,40}$/.test(key)) { showError('주소 형식이 올바르지 않아요', '바로가기 키는 영문 소문자 · 숫자 · - 만 쓸 수 있습니다.'); return; }
+
+  load().then(function (map) {
+    if (!key) { showList(map); return; }
+    var e = Object.prototype.hasOwnProperty.call(map, key) ? map[key] : null;
+    if (key.charAt(0) === '_' || !valid(e)) { showError('등록되지 않은 바로가기예요', '「' + key + '」 은(는) 목록에 없습니다. 주소를 다시 확인해 주세요.'); return; }
+    showGo(key, e);
+  }).catch(function () {
+    showError('목록을 불러오지 못했어요', '잠시 후 다시 시도해 주세요. 계속되면 IT팀에 알려 주세요.');
+  });
 })();
 </script>
 </body>
