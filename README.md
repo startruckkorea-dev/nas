@@ -9,3 +9,11 @@ SharePoint STK-NAS 홈에 iframe 으로 넣는 업무 바로가기 화면입니�
 ```html
 <iframe src="https://startruckkorea-dev.github.io/nas/" width="100%" height="950" frameborder="0" style="border-radius:12px; border:none;"></iframe>
 ```
+
+## 바로 열면 SSO 가 깨지는 사이트(go)
+
+SharePoint 를 보안 프록시(`*.mcas.ms`)로 열면 페이지 안 링크에도 `.mcas.ms` 가 붙어 일부 사이트(Concur 등)의 SSO 로그인이 실패합니다.
+SharePoint 바로가기에는 아래처럼 중간 페이지 주소를 넣으면 원래 주소로 열립니다.
+
+- Concur: `https://startruckkorea-dev.github.io/nas/go/?to=concur`
+- 대상 추가: `go.json` 에 `"키": { "name": "이름", "url": "https://..." }` 한 줄 추가(등록된 키 · https 주소만 이동)

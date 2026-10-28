@@ -1,0 +1,4 @@
+{
+  "_안내": "SharePoint(보안 프록시 *.mcas.ms)에서 바로 열면 SSO 가 깨지는 사이트를 거쳐 여는 주소 목록. https://startruckkorea-dev.github.io/nas/go/?to=키 로 연결합니다. 여기 없는 키나 https 가 아닌 주소로는 이동하지 않습니다.",
+  "concur": { "name": "Concur", "url": "https://eu2.concursolutions.com/" }
+}
