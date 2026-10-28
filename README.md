@@ -1,15 +1,12 @@
 # STK 바로가기(리디렉션)
 
-SharePoint 를 보안 프록시(`*.mcas.ms`)로 열면 페이지 안 링크에도 `.mcas.ms` 가 붙어 일부 사이트(Concur 등)의 SSO 로그인이 실패합니다.
-SharePoint 바로가기에 아래 주소를 넣으면 이 사이트를 한 번 거쳐 원래 주소로 열립니다.
+SharePoint 를 보안 프록시(`*.mcas.ms`)로 열면 페이지 안 링크에도 `.mcas.ms` 가 붙어 일부 사이트의 SSO 로그인이 실패합니다.
+SharePoint 바로가기에 `https://redirect.startruckkorea.com/?to=키` 를 넣으면 이 사이트를 한 번 거쳐 원래 주소로 열립니다.
 
-| 대상 | SharePoint 에 넣을 주소 |
-|---|---|
-| Concur | `https://redirect.startruckkorea.com/?to=concur` |
-
-- 사용자 지정 도메인(redirect.startruckkorea.com) 연결 전에는 `https://startruckkorea-dev.github.io/nas/?to=concur`
-  (연결 후에는 github.io 주소로 들어와도 GitHub 가 새 도메인으로 넘겨 줍니다)
-- 대상 추가 · 변경: `go.json` 에 `"키": { "name": "이름", "desc": "설명", "url": "https://..." }` 추가
-  (키는 영문 소문자 · 숫자 · `-`, url 은 https 만. 선택: `color` #RRGGBB, `mono` 머리글자)
-- 등록된 키 · https 주소로만 이동하고, 그 밖의 값은 이동하지 않습니다.
+- **이동할 주소는 이 저장소에 두지 않습니다.** SharePoint STK-DB 「문서」 라이브러리 맨 위의 엑셀 파일에서만 읽습니다.
+  - 첫 시트 · 1행 머리글 · A 키 · B 이름 · C 설명 · D 주소(https) · E 사용(Y/N, 비우면 Y) · F 색상(#RRGGBB, 선택)
+  - 키는 영문 소문자 · 숫자 · `-` 만. 같은 키가 두 번 있으면 위의 것을 씁니다.
+  - 주소에 `.mcas.ms` 가 붙어 있으면 떼고 원래 주소로 엽니다. https 가 아니면 쓰지 않습니다.
+- 파일을 읽으려면 회사 계정 로그인이 필요합니다(APS 와 같은 앱 등록). 앱 등록의 「단일 페이지 애플리케이션」 리디렉션 URI 에
+  `https://redirect.startruckkorea.com/` 이 있어야 합니다.
 - 키 없이 열면 등록된 바로가기 목록이 나옵니다. 예전 주소 `/go/?to=키` 도 그대로 동작합니다.

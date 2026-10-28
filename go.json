@@ -1,9 +1,0 @@
-{
-  "_안내": "SharePoint(보안 프록시 *.mcas.ms)에서 바로 열면 SSO 가 깨지는 사이트를 거쳐 여는 주소 목록. 바로가기 주소 = (이 사이트 주소)/?to=키. 키는 영문 소문자 · 숫자 · - 만, url 은 https 만. 선택: desc(목록 설명), color(#RRGGBB), mono(머리글자).",
-  "concur": {
-    "name": "Concur",
-    "desc": "출장 · 경비 정산",
-    "url": "https://eu2.concursolutions.com/",
-    "color": "#0b63c5"
-  }
-}
