@@ -1,0 +1,214 @@
+{
+  "_안내": "STK-NAS 포털 바로가기 목록. 순서 · 이름 · 주소만 고치면 다음 접속부터 반영됩니다. url 이 비어 있으면 「준비 중」 으로 흐리게 표시됩니다. icon 은 아래 icons 목록의 키, 또는 logo 에 이미지 경로(예: icons/flex.png)를 넣으면 그림이 우선합니다. badge 는 UAT 같은 작은 표시.",
+  "updated": "2026-10-28",
+  "sections": [
+    {
+      "id": "storage",
+      "title": "STK Storage",
+      "caption": "공유 저장소",
+      "items": [
+        {
+          "name": "HS STK-Core",
+          "url": "",
+          "icon": "folder",
+          "tone": "amber"
+        },
+        {
+          "name": "HS STK-Shared",
+          "url": "",
+          "icon": "folder",
+          "tone": "amber"
+        },
+        {
+          "name": "HS STK-Temp",
+          "url": "",
+          "icon": "folder",
+          "tone": "amber"
+        },
+        {
+          "name": "STK B2B",
+          "url": "",
+          "icon": "b2b",
+          "tone": "amber"
+        }
+      ]
+    },
+    {
+      "id": "rpa",
+      "title": "STK RPA",
+      "caption": "사내 자동화 · 업무 시스템",
+      "items": [
+        {
+          "name": "Policies & Guidelines",
+          "url": "https://startruckkorea-dev.github.io/stk-policies-guidelines/",
+          "icon": "policy",
+          "tone": "slate",
+          "desc": "사내 규정 · 지침"
+        },
+        {
+          "name": "Privacy Data Consent Form",
+          "url": "https://consent.startruckkorea.com/",
+          "icon": "consent",
+          "tone": "slate",
+          "desc": "개인정보 수집 · 이용 동의"
+        },
+        {
+          "name": "APS",
+          "desc": "Approval Processing System",
+          "url": "https://aps.startruckkorea.com/",
+          "icon": "aps",
+          "tone": "blue"
+        },
+        {
+          "name": "Bulletin Board",
+          "url": "https://startruckkorea-dev.github.io/stk-bulletin-board/",
+          "icon": "bulletin",
+          "tone": "sky",
+          "desc": "사내 게시판"
+        },
+        {
+          "name": "WMC",
+          "desc": "Weekend Mobility Car",
+          "url": "https://wmc.startruckkorea.com/",
+          "icon": "car",
+          "tone": "blue"
+        },
+        {
+          "name": "Live FX & KR Air Dashboard",
+          "url": "https://startruckkorea-dev.github.io/stk-bulletin-openAPI-ExchangeRate/",
+          "icon": "fx",
+          "tone": "amber",
+          "desc": "실시간 환율 · 대기질"
+        },
+        {
+          "name": "MB Spec",
+          "url": "",
+          "icon": "truck",
+          "tone": "slate"
+        },
+        {
+          "name": "CV market",
+          "url": "",
+          "icon": "chart",
+          "tone": "rose"
+        },
+        {
+          "name": "SAM x AFAB",
+          "url": "",
+          "icon": "handshake",
+          "tone": "blue"
+        },
+        {
+          "name": "Training365",
+          "url": "https://training365.startruckkorea.com/",
+          "icon": "training",
+          "tone": "slate",
+          "badge": "UAT",
+          "desc": "사내 교육"
+        }
+      ]
+    },
+    {
+      "id": "apps",
+      "title": "STK Application",
+      "caption": "그룹 · 외부 서비스",
+      "notices": [
+        {
+          "icon": "info",
+          "html": "Concur 앱 링크는 효성 그룹 정책으로 제한되어 있습니다. <a href=\"https://eu2.concursolutions.com/\" target=\"_blank\" rel=\"noopener\">eu2.concursolutions.com</a> 으로 접속해 주세요."
+        },
+        {
+          "icon": "folder",
+          "html": "Hiparking 기록 파일 경로: <b>HS STK-Shared → 2. Company Information STK → GA → 02.Parking ticket log (SSQ) → 1.Parking Ticket logbook_2025</b>"
+        }
+      ],
+      "items": [
+        {
+          "name": "Hyosung Hope2.0",
+          "url": "",
+          "mono": "H",
+          "tone": "navy"
+        },
+        {
+          "name": "Hyosung Hope2.0",
+          "url": "",
+          "mono": "H",
+          "tone": "navy",
+          "badge": "UAT"
+        },
+        {
+          "name": "FLEX",
+          "desc": "HR",
+          "url": "https://flex.team/auth/login",
+          "mono": "f",
+          "tone": "ink"
+        },
+        {
+          "name": "Deloitte BPTS",
+          "url": "",
+          "mono": "D",
+          "tone": "ink"
+        },
+        {
+          "name": "Ezwel",
+          "desc": "복지몰",
+          "url": "",
+          "mono": "E",
+          "tone": "green"
+        },
+        {
+          "name": "SAP-Be1",
+          "desc": "Business One",
+          "url": "",
+          "mono": "SAP",
+          "tone": "sap"
+        },
+        {
+          "name": "DMS & Parts",
+          "url": "",
+          "icon": "parts",
+          "tone": "slate",
+          "desc": "딜러 관리 · 부품"
+        },
+        {
+          "name": "DMS & Parts",
+          "url": "",
+          "icon": "parts",
+          "tone": "slate",
+          "badge": "UAT",
+          "desc": "딜러 관리 · 부품"
+        },
+        {
+          "name": "CRM",
+          "url": "",
+          "icon": "crm",
+          "tone": "slate",
+          "desc": "고객 관리"
+        },
+        {
+          "name": "CRM",
+          "url": "",
+          "icon": "crm",
+          "tone": "slate",
+          "badge": "UAT",
+          "desc": "고객 관리"
+        },
+        {
+          "name": "Hiparking",
+          "url": "",
+          "icon": "parking",
+          "tone": "ink"
+        },
+        {
+          "name": "STK HOLiC",
+          "url": "",
+          "mono": "STK",
+          "tone": "ink"
+        }
+      ]
+    }
+  ],
+  "footer": {
+    "html": "문의나 오류는 <a href=\"https://itsm-ticket.startruckkorea.com/\" target=\"_blank\" rel=\"noopener\">ITSM Ticket</a> 으로 접수하시거나 <a href=\"mailto:stk_it@hyosung.com\">stk_it@hyosung.com</a> 으로 연락해 주세요."
+  }
+}

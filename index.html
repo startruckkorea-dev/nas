@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex, nofollow">
+<title>STK-NAS 바로가기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* STK-NAS 포털 — SharePoint STK-NAS 홈에 iframe 으로 넣는 바로가기 화면.
+   목록 · 주소는 links.json 에서 읽는다(코드에 주소를 넣지 않음). 기존 홈의 짙은 남색 · 별 배경 느낌을 살렸다. */
+:root{
+  --bg0:#060b1a; --bg1:#0b1633; --bg2:#122352;
+  --txt:#f1f5fb; --sub:#a9b6cf; --muted:#6f7f9c;
+  --line:rgba(148,163,184,.14); --card:rgba(255,255,255,.035); --card-h:rgba(255,255,255,.075);
+  --ring:rgba(96,165,250,.55); --accent:#f5b83d; --accent-2:#fcd34d;
+  --amber:#d97706; --blue:#2563eb; --sky:#0284c7; --slate:#334155; --rose:#e11d48; --navy:#1e3a8a; --ink:#0f172a; --green:#15803d; --sap:#0a6ed1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Pretendard Variable',Pretendard,'Segoe UI','Malgun Gothic',sans-serif;color:var(--txt);
+  background:radial-gradient(1200px 700px at 12% -10%,rgba(37,99,235,.28),transparent 60%),
+             radial-gradient(900px 600px at 105% 15%,rgba(99,102,241,.16),transparent 55%),
+             linear-gradient(180deg,var(--bg1) 0%,var(--bg0) 100%);
+  min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+#sky{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:22px 28px 26px}
+
+/* 위쪽 */
+.top{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.mark{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex:none;
+  background:linear-gradient(145deg,#1d4ed8,#1e3a8a);box-shadow:0 6px 18px rgba(29,78,216,.35),inset 0 1px 0 rgba(255,255,255,.18)}
+.mark svg{width:20px;height:20px}
+.brand h1{font-size:17px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.brand p{font-size:12px;color:var(--sub);margin-top:1px;white-space:nowrap}
+.search{margin-left:auto;position:relative;width:min(320px,100%)}
+.search input{width:100%;height:38px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.05);
+  color:var(--txt);font:inherit;font-size:13px;padding:0 64px 0 36px;outline:none;transition:border-color .15s,background .15s,box-shadow .15s}
+.search input::placeholder{color:var(--muted)}
+.search input:focus{border-color:var(--ring);background:rgba(255,255,255,.08);box-shadow:0 0 0 3px rgba(96,165,250,.15)}
+.search .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--muted)}
+.search kbd{position:absolute;right:9px;top:50%;transform:translateY(-50%);font:600 10.5px/1 inherit;color:var(--muted);
+  border:1px solid var(--line);border-radius:6px;padding:4px 6px;background:rgba(255,255,255,.04)}
+
+/* 구역 */
+.sec{margin-top:20px}
+.sec:first-of-type{margin-top:0}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.sec-h h2{font-size:18px;font-weight:750;letter-spacing:-.015em}
+.sec-h .cap{font-size:12px;color:var(--sub)}
+.sec-h .cnt{margin-left:auto;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sec-h::after{content:"";flex:1;height:1px;align-self:center;background:linear-gradient(90deg,var(--line),transparent);order:2}
+.sec-h .cnt{order:3}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:10px}
+
+/* 바로가기 */
+.tile{position:relative;display:flex;align-items:center;gap:12px;min-height:62px;padding:11px 14px 11px 11px;border-radius:14px;
+  background:var(--card);border:1px solid var(--line);color:inherit;text-decoration:none;
+  transition:transform .18s cubic-bezier(.2,.7,.2,1),background .18s,border-color .18s,box-shadow .18s;
+  animation:rise .45s cubic-bezier(.2,.7,.2,1) both}
+.tile:hover,.tile:focus-visible{background:var(--card-h);border-color:var(--ring);transform:translateY(-2px);
+  box-shadow:0 10px 26px rgba(2,6,23,.45),0 0 0 1px rgba(96,165,250,.12) inset;outline:none}
+.tile:active{transform:translateY(0)}
+.chip{width:40px;height:40px;border-radius:11px;background:#fff;display:grid;place-items:center;flex:none;
+  box-shadow:0 2px 8px rgba(2,6,23,.35),inset 0 -1px 0 rgba(15,23,42,.06);overflow:hidden}
+.chip svg{width:22px;height:22px}
+.chip img{width:30px;height:30px;object-fit:contain}
+.chip .mono{font-weight:800;font-size:15px;letter-spacing:-.03em;line-height:1}
+.chip .mono.s{font-size:11px;letter-spacing:-.02em}
+.tx{min-width:0;flex:1}
+.nm{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:650;line-height:1.25}
+.nm span{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:keep-all;overflow-wrap:anywhere}
+.ds{font-size:11.5px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{flex:none;font-size:9.5px;font-weight:700;letter-spacing:.04em;color:var(--accent-2);border:1px solid rgba(252,211,77,.45);
+  background:rgba(245,184,61,.1);padding:2px 6px;border-radius:999px;line-height:1.2}
+.go{width:16px;height:16px;color:var(--sub);opacity:0;transform:translate(-4px,4px);transition:opacity .18s,transform .18s;flex:none}
+.tile:hover .go,.tile:focus-visible .go{opacity:1;transform:none}
+.tile.off{cursor:default;border-style:dashed;border-color:rgba(148,163,184,.12)}
+.tile.off>*{opacity:.45}
+.tile.off:hover{transform:none;background:var(--card);border-color:var(--line);box-shadow:none}
+.tile.off .ds{color:var(--muted)}
+
+/* 안내 */
+.notes{display:grid;gap:7px;margin:0 0 12px}
+.note{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.55;color:var(--sub);
+  padding:9px 12px;border-radius:11px;background:rgba(245,184,61,.06);border:1px solid rgba(245,184,61,.16)}
+.note svg{width:15px;height:15px;color:var(--accent);flex:none;margin-top:2px}
+.note b{color:var(--txt);font-weight:600}
+.note a,.foot a{color:var(--accent);text-decoration:underline;text-underline-offset:2px;text-decoration-color:rgba(245,184,61,.45)}
+.note a:hover,.foot a:hover{color:var(--accent-2)}
+
+.empty{display:none;text-align:center;padding:38px 0;color:var(--sub);font-size:13px}
+.foot{margin-top:24px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--sub);text-align:center;line-height:1.6}
+.err{margin-top:30px;text-align:center;color:var(--sub);font-size:13px;line-height:1.7}
+.err button{margin-top:10px;font:inherit;font-size:12.5px;color:var(--txt);background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:9px;padding:7px 14px;cursor:pointer}
+.err button:hover{border-color:var(--ring)}
+
+/* 불러오는 동안 — 자리 틀 */
+.sk{height:62px;border-radius:14px;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.08),rgba(255,255,255,.04));background-size:200% 100%;animation:sh 1.2s linear infinite;border:1px solid var(--line)}
+@keyframes sh{to{background-position:-200% 0}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+@media (max-width:640px){
+  .wrap{padding:16px 14px 20px}
+  .top{flex-wrap:wrap}
+  .search{width:100%}
+  .search kbd{display:none}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+  .tile{padding:10px;gap:10px}
+  .chip{width:36px;height:36px}
+  .nm{font-size:13px;flex-wrap:wrap;row-gap:3px}
+  .ds{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5-9 4.5-9-4.5Z"/><path d="m3 12 9 4.5 9-4.5"/><path d="m3 16.5 9 4.5 9-4.5"/></svg></div>
+      <div><h1>STK-NAS</h1><p>Star Truck Korea · 업무 바로가기</p></div>
+    </div>
+    <label class="search">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="바로가기 검색" autocomplete="off" aria-label="바로가기 검색">
+      <kbd>/</kbd>
+    </label>
+  </header>
+  <main id="main" aria-live="polite">
+    <section class="sec"><div class="sec-h"><h2>&nbsp;</h2></div><div class="grid"><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div></section>
+  </main>
+  <div class="empty" id="empty">찾는 바로가기가 없습니다.</div>
+  <footer class="foot" id="foot"></footer>
+</div>
+<script>
+(function () {
+  'use strict';
+  // ── 아이콘(선 아이콘 · 상표 그림 아님) ─────────────────────────────
+  var I = {
+    folder: '<path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4l2 2h9A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-10Z" fill="currentColor" fill-opacity=".18"/>',
+    b2b: '<path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4l2 2h9A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-10Z" fill="currentColor" fill-opacity=".18"/><text x="12" y="16.6" text-anchor="middle" font-size="6.2" font-weight="800" fill="currentColor" stroke="none" font-family="Pretendard Variable,Segoe UI,sans-serif">B2B</text>',
+    policy: '<path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.2 7.5 9.5 4.3-1.3 7.5-4.9 7.5-9.5V6L12 3Z" fill="currentColor" fill-opacity=".12"/><path d="m9 12 2 2 4-4"/>',
+    consent: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5V3h6v1.5"/><path d="M8.5 11h7M8.5 14.5h4"/><path d="m14 17.5 1.4 1.4 2.6-2.6"/>',
+    aps: '<path d="M4 13.5 6.5 6A1.5 1.5 0 0 1 7.9 5h8.2a1.5 1.5 0 0 1 1.4 1L20 13.5V18a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18v-4.5Z"/><path d="M4 13.5h4.5l1.5 2h4l1.5-2H20" />',
+    bulletin: '<path d="M4 10v4a1 1 0 0 0 1 1h2l5 4V5L7 9H5a1 1 0 0 0-1 1Z" fill="currentColor" fill-opacity=".12"/><path d="M16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"/>',
+    car: '<path d="M5 16.5V13l1.8-4.6A2 2 0 0 1 8.7 7h6.6a2 2 0 0 1 1.9 1.4L19 13v3.5"/><path d="M4 16.5h16v1.5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-.5h-9v.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1.5Z"/><path d="M5 13h14"/><circle cx="8" cy="15" r=".6" fill="currentColor"/><circle cx="16" cy="15" r=".6" fill="currentColor"/>',
+    fx: '<circle cx="12" cy="12" r="8.5" fill="currentColor" fill-opacity=".1"/><path d="M14.6 9.2c-.5-.8-1.5-1.3-2.6-1.3-1.5 0-2.6.8-2.6 1.9 0 2.6 5.4 1.4 5.4 4.2 0 1.1-1.2 2-2.8 2-1.2 0-2.2-.5-2.7-1.3M12 6.3v1.6M12 16v1.7"/>',
+    truck: '<path d="M3 6.5h10.5v9H3z" fill="currentColor" fill-opacity=".12"/><path d="M13.5 9.5h3.8l2.7 3.2v2.8h-6.5z"/><circle cx="7" cy="17" r="1.8"/><circle cx="16.8" cy="17" r="1.8"/>',
+    chart: '<path d="M4 20h16"/><rect x="5.5" y="12" width="3" height="6" rx=".6" fill="currentColor" fill-opacity=".18"/><rect x="10.5" y="8" width="3" height="10" rx=".6" fill="currentColor" fill-opacity=".18"/><rect x="15.5" y="4.5" width="3" height="13.5" rx=".6" fill="currentColor" fill-opacity=".18"/>',
+    handshake: '<path d="m11 7.5-2-1.5-4.5 2v6l3 2.5"/><path d="m13 7.5 2-1.5 4.5 2v6l-5.5 4.5-4-3"/><path d="m11 7.5-2.5 3a1.3 1.3 0 0 0 2 1.6l1.6-1.5 3.4 3.4"/>',
+    training: '<rect x="3.5" y="5" width="17" height="11.5" rx="2" fill="currentColor" fill-opacity=".1"/><path d="m10.5 8.5 4 2.3-4 2.3z" fill="currentColor"/><path d="M8 20h8M12 16.5V20"/>',
+    parts: '<circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.2M12 18.3v2.2M20.5 12h-2.2M5.7 12H3.5M18 6l-1.6 1.6M7.6 16.4 6 18M18 18l-1.6-1.6M7.6 7.6 6 6"/>',
+    crm: '<circle cx="9" cy="9" r="3"/><path d="M3.5 19c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8"/><circle cx="16.5" cy="8" r="2.4"/><path d="M15.8 13.2c2.4.1 4.1 1.8 4.7 4.3"/>',
+    parking: '<rect x="4" y="4" width="16" height="16" rx="3.5" fill="currentColor" fill-opacity=".12"/><path d="M10 16.5v-9h3a2.8 2.8 0 0 1 0 5.6h-3"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.8v.1"/>'
+  };
+  var GO = '<svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>';
+  function svg(k, cls) { return '<svg' + (cls ? ' class="' + cls + '"' : '') + ' viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (I[k] || I.folder) + '</svg>'; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  // 설정 파일의 html 은 링크 · 굵게만 허용(그 밖의 태그 · 속성은 글자로)
+  function safeHtml(s) {
+    var d = document.createElement('div'); d.innerHTML = String(s || '');
+    (function walk(n) {
+      Array.prototype.slice.call(n.childNodes).forEach(function (c) {
+        if (c.nodeType === 1) {
+          var t = c.tagName.toLowerCase();
+          if (t === 'a') {
+            var h = c.getAttribute('href') || '';
+            if (!/^(https:|mailto:)/i.test(h)) { c.replaceWith(document.createTextNode(c.textContent)); return; }
+            Array.prototype.slice.call(c.attributes).forEach(function (a) { if (a.name !== 'href') c.removeAttribute(a.name); });
+            if (/^https:/i.test(h)) { c.setAttribute('target', '_blank'); c.setAttribute('rel', 'noopener noreferrer'); }
+          } else if (t === 'b' || t === 'strong' || t === 'br') {
+            Array.prototype.slice.call(c.attributes).forEach(function (a) { c.removeAttribute(a.name); });
+          } else { c.replaceWith(document.createTextNode(c.textContent)); return; }
+          walk(c);
+        }
+      });
+    })(d);
+    return d.innerHTML;
+  }
+  var TONE = { amber: 'var(--amber)', blue: 'var(--blue)', sky: 'var(--sky)', slate: 'var(--slate)', rose: 'var(--rose)', navy: 'var(--navy)', ink: 'var(--ink)', green: 'var(--green)', sap: 'var(--sap)' };
+
+  function chip(it) {
+    var c = TONE[it.tone] || 'var(--slate)';
+    var inner;
+    if (it.logo && /^(icons\/|https:)/.test(it.logo)) inner = '<img src="' + esc(it.logo) + '" alt="" loading="lazy">';
+    else if (it.mono) inner = '<span class="mono' + (String(it.mono).length > 2 ? ' s' : '') + '" style="color:' + c + '">' + esc(it.mono) + '</span>';
+    else inner = '<span style="color:' + c + ';display:grid">' + svg(it.icon) + '</span>';
+    return '<span class="chip" aria-hidden="true">' + inner + '</span>';
+  }
+  var delay = 0;
+  function tile(it, sec) {
+    var url = String(it.url || '').trim();
+    var ok = /^https:\/\//i.test(url);
+    var key = (it.name + ' ' + (it.desc || '') + ' ' + (it.badge || '') + ' ' + sec.title).toLowerCase();
+    var body = chip(it) + '<span class="tx"><span class="nm"><span>' + esc(it.name) + '</span>' + (it.badge ? '<em class="badge">' + esc(it.badge) + '</em>' : '') + '</span>' +
+      '<span class="ds">' + esc(ok ? (it.desc || hostOf(url)) : '링크 준비 중') + '</span></span>' + (ok ? GO : '');
+    var st = ' style="animation-delay:' + Math.min(delay++ * 18, 420) + 'ms"';
+    return ok
+      ? '<a class="tile" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" data-k="' + esc(key) + '" title="' + esc(it.name + (it.badge ? ' [' + it.badge + ']' : '') + ' — 새 창') + '"' + st + '>' + body + '</a>'
+      : '<div class="tile off" aria-disabled="true" data-k="' + esc(key) + '"' + st + '>' + body + '</div>';
+  }
+  function hostOf(u) { try { var h = new URL(u).hostname.replace(/^www\./, ''); return h.length > 34 ? h.slice(0, 33) + '…' : h; } catch (e) { return ''; } }
+
+  function render(cfg) {
+    delay = 0;
+    var html = (cfg.sections || []).map(function (s) {
+      var items = s.items || [];
+      var notes = (s.notices || []).map(function (n) { return '<div class="note">' + svg(n.icon || 'info') + '<div>' + safeHtml(n.html) + '</div></div>'; }).join('');
+      return '<section class="sec" data-sec="' + esc(s.id) + '"><div class="sec-h"><h2>' + esc(s.title) + '</h2>' + (s.caption ? '<span class="cap">' + esc(s.caption) + '</span>' : '') +
+        '<span class="cnt">' + items.length + '</span></div>' + (notes ? '<div class="notes">' + notes + '</div>' : '') +
+        '<div class="grid">' + items.map(function (it) { return tile(it, s); }).join('') + '</div></section>';
+    }).join('');
+    document.getElementById('main').innerHTML = html;
+    document.getElementById('foot').innerHTML = cfg.footer ? safeHtml(cfg.footer.html) : '';
+    filter();
+  }
+  function filter() {
+    var q = document.getElementById('q').value.trim().toLowerCase();
+    var any = false;
+    Array.prototype.forEach.call(document.querySelectorAll('.sec[data-sec]'), function (sec) {
+      var n = 0;
+      Array.prototype.forEach.call(sec.querySelectorAll('.tile'), function (t) { var hit = !q || t.getAttribute('data-k').indexOf(q) >= 0; t.style.display = hit ? '' : 'none'; if (hit) n++; });
+      var nt = sec.querySelector('.notes'); if (nt) nt.style.display = q ? 'none' : '';
+      sec.style.display = n ? '' : 'none'; if (n) any = true;
+      var c = sec.querySelector('.cnt'); if (c) c.textContent = q ? n + ' / ' + sec.querySelectorAll('.tile').length : sec.querySelectorAll('.tile').length;
+    });
+    document.getElementById('empty').style.display = any ? 'none' : 'block';
+  }
+  function load() {
+    fetch('links.json?v=' + Math.floor(Date.now() / 60000), { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(render)
+      .catch(function (e) {
+        console.warn('[STK-NAS] links.json 읽기 실패:', e && e.message);
+        document.getElementById('main').innerHTML = '<div class="err">바로가기 목록을 불러오지 못했습니다.<br><button type="button" id="retry">다시 시도</button></div>';
+        document.getElementById('retry').onclick = load;
+      });
+  }
+  document.getElementById('q').addEventListener('input', filter);
+  document.addEventListener('keydown', function (e) {
+    var q = document.getElementById('q');
+    if (e.key === '/' && document.activeElement !== q) { e.preventDefault(); q.focus(); }
+    else if (e.key === 'Escape' && document.activeElement === q) { q.value = ''; filter(); q.blur(); }
+  });
+  load();
+
+  // ── 별 배경(기존 홈의 별 느낌 · 아주 천천히 반짝임) ─────────────────
+  var cv = document.getElementById('sky'), ctx = cv.getContext('2d'), stars = [], W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function size() {
+    W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var n = Math.round(W * H / 5200); stars = [];
+    for (var i = 0; i < n; i++) stars.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() < .08 ? 1.3 : Math.random() * .8 + .25, a: Math.random() * .6 + .2, s: Math.random() * .8 + .2, p: Math.random() * 6.28 });
+    draw(0);
+  }
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i], a = still ? s.a : s.a * (.65 + .35 * Math.sin(t / 1000 * s.s + s.p));
+      ctx.globalAlpha = a; ctx.fillStyle = s.r > 1 ? '#dbe7ff' : '#ffffff';
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  var last = 0;
+  function loop(t) { if (!document.hidden && t - last > 66) { draw(t); last = t; } requestAnimationFrame(loop); }
+  window.addEventListener('resize', size);
+  size(); if (!still) requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
